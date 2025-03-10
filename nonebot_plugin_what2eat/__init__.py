@@ -14,6 +14,8 @@ from nonebot_plugin_apscheduler import scheduler
 from .data_source import eating_manager
 from .utils import Meals, save_cq_image
 
+from datetime import datetime
+
 require("nonebot_plugin_apscheduler")
 
 __what2eat_version__ = "v0.3.6"
@@ -40,9 +42,9 @@ __plugin_meta__ = PluginMetadata(
 )
 
 what2eat = on_regex(
-    r"^(今天|[早中午晚][上饭餐午]|早上|夜宵|今晚)吃(什么|啥|点啥)(帮助)?$", priority=15)
+    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)吃(什么|点啥|啥)(帮助)?", priority=15)
 what2drink = on_regex(
-    r"^(今天|[早中午晚][上饭餐午]|早上|夜宵|今晚)喝(什么|啥|点啥)(帮助)?$", priority=15)
+    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)喝(什么|点啥|啥)(帮助)?", priority=15)
 group_add = on_command("添加", permission=SUPERUSER |
                        GROUP_ADMIN | GROUP_OWNER, priority=15, block=True)
 group_remove = on_command("移除", permission=SUPERUSER |
@@ -62,22 +64,40 @@ remove_greeting = on_command("删除问候", aliases={
                              "删除问候语", "移除问候", "移除问候语"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=12, block=True)
 
 
+# @what2eat.handle()
+# async def _(event: MessageEvent, args: str = RegexMatched()):
+#     logger.info("enter what2eat")
+#     if args[-2:] == "帮助":
+#         await what2eat.finish(__what2eat_usages__)
+#     print("code goes here")
+#     msg = eating_manager.get2eat(event)
+#     await what2eat.finish(msg)
+
 @what2eat.handle()
-async def _(event: MessageEvent, args: str = RegexMatched()):
-    if args[-2:] == "帮助":
-        await what2eat.finish(__what2eat_usages__)
-
+async def handleEat(event: GroupMessageEvent):
+    if "帮助" in event.get_plaintext():
+         await what2drink.finish(__what2eat_usages__)
     msg = eating_manager.get2eat(event)
+    if datetime.today().isoweekday() == 4 and "肯德基" not in msg:
+        msg += "，但因为今天是周四所以更推荐肯德基！"
     await what2eat.finish(msg)
-
+    # await what2eat.finish("匹配到了")
 
 @what2drink.handle()
-async def _(event: MessageEvent, args: str = RegexMatched()):
-    if args[-2:] == "帮助":
-        await what2drink.finish(__what2eat_usages__)
-
+async def handleDrink(event: GroupMessageEvent):
+    if "帮助" in event.get_plaintext():
+         await what2drink.finish(__what2eat_usages__)
     msg = eating_manager.get2drink(event)
     await what2drink.finish(msg)
+
+# @what2drink.handle()
+# async def _(event: MessageEvent, args: str = RegexMatched()):
+#     logger.info("enter what2drink")
+#     if args[-2:] == "帮助":
+#         await what2drink.finish(__what2eat_usages__)
+
+#     msg = eating_manager.get2drink(event)
+#     await what2drink.finish(msg)
 
 
 @group_add.handle()
@@ -154,14 +174,14 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
 async def _(event: GroupMessageEvent):
     gid = str(event.group_id)
     eating_manager.update_greeting_status(gid, True)
-    await greeting_on.finish("已开启吃饭小助手~")
+    await greeting_on.finish("已开启吃饭小助手喵~")
 
 
 @greeting_off.handle()
 async def _(event: GroupMessageEvent):
     gid = str(event.group_id)
     eating_manager.update_greeting_status(gid, False)
-    await greeting_off.finish("已关闭吃饭小助手~")
+    await greeting_off.finish("已关闭吃饭小助手喵~")
 
 
 def parse_greeting() -> Coroutine[Any, Any, None]:
