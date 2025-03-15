@@ -399,7 +399,16 @@ class EatingManager:
         msg = self._get_greeting(meal)
 
         if isinstance(msg, MessageSegment) and bool(self._greetings["groups_id"]) > 0:
+            import os
+            current_dir = os.getcwd()
+            print("当前工作目录:", current_dir)
             for gid in self._greetings["groups_id"]:
+                if int(gid) == 244960293:
+                    with open("assets/wangqun.jpg", "rb") as f:
+                        msg = MessageSegment.image(f.read())
+                elif int(gid) == 853041949:
+                    with open("assets/miaoqun.jpg", "rb") as f:
+                        msg = MessageSegment.image(f.read())
                 try:
                     await bot.call_api("send_group_msg", group_id=int(gid), message=msg)
                 except ActionFailed as e:
