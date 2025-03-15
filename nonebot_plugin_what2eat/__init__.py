@@ -40,11 +40,40 @@ __plugin_meta__ = PluginMetadata(
         "version": __what2eat_version__
     }
 )
-
-what2eat = on_regex(
-    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)吃(什么|点啥|啥)(帮助)?", priority=15)
-what2drink = on_regex(
-    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)喝(什么|点啥|啥)(帮助)?", priority=15)
+import re
+eat_pattern = re.compile(
+    r'^'
+    r'(?:'  # 时间部分（可选）
+        r'(?:今|明|后|每(?:\天|日|周)?|周|[早晚]|早上|晚上|下午|凌晨|今早|今晚|明早|明晚)'
+        r'[天日周晨上下午晚钟]*(?:\的)?'
+    r')?'  # 时间部分结束
+    r'(?:早饭|早餐|早茶|午餐|午饭|下午茶|晚餐|晚饭|宵夜|夜宵)'  # 时间段
+    r'吃什么'  # 固定部分
+    r'.*$',
+    re.UNICODE
+).pattern
+print(eat_pattern)
+e_p = r"^(?:(?:今|明|后|每(?:\天|日|周)?|周|[早晚]|早上|晚上|下午|凌晨|今早|今晚|明早|明晚)[天日周晨上下午晚钟]*(?:\的)?)?(?:早饭|早餐|早茶|午餐|午饭|下午茶|下午|晚餐|晚饭|晚上|宵夜|夜宵)?吃什么.*$"
+drink_pattern = re.compile(
+    r'^'
+    r'(?:'  # 时间部分（可选）
+        r'(?:今|明|后|每(?:\天|日|周)?|周|[早晚]|早上|晚上|下午|凌晨|今早|今晚|明早|明晚)'
+        r'[天日周晨上下午晚钟]*(?:\的)?'
+    r')?'  # 时间部分结束
+    r'(?:早饭|早餐|早茶|午餐|午饭|下午茶|晚餐|晚饭|宵夜|夜宵)'  # 时间段
+    r'喝什么'  # 固定部分
+    r'.*$',
+    re.UNICODE
+).pattern
+print(drink_pattern)
+d_p = r"^(?:(?:今|明|后|每(?:\天|日|周)?|周|[早晚]|早上|中午|上午|晚上|下午|凌晨|今早|今晚|明早|明晚)[天日周晨上下午晚钟]*(?:\的)?)?(?:早饭|早餐|早茶|午餐|午饭|下午茶|下午|晚餐|晚饭|晚上|宵夜|夜宵)喝什么.*$"
+what2eat = on_regex(e_p, priority=15,block=True)
+what2drink = on_regex(d_p, priority=15,block=True)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+what2eat_water = on_regex(
+    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)(.){0,6}吃(什么|点啥|啥)(帮助)?", priority=16, block=True)
+what2drink_water = on_regex(
+    r"^(今)?(天)?((早|晚)(?:上|餐)?|中午|午餐)(.){0,6}喝(什么|点啥|啥)(帮助)?", priority=16, block=True)
 group_add = on_command("添加", permission=SUPERUSER |
                        GROUP_ADMIN | GROUP_OWNER, priority=15, block=True)
 group_remove = on_command("移除", permission=SUPERUSER |
@@ -74,6 +103,7 @@ remove_greeting = on_command("删除问候", aliases={
 #     await what2eat.finish(msg)
 
 @what2eat.handle()
+@what2eat_water.handle()
 async def handleEat(event: GroupMessageEvent):
     if "帮助" in event.get_plaintext():
          await what2drink.finish(__what2eat_usages__)
@@ -84,6 +114,7 @@ async def handleEat(event: GroupMessageEvent):
     # await what2eat.finish("匹配到了")
 
 @what2drink.handle()
+@what2drink_water.handle()
 async def handleDrink(event: GroupMessageEvent):
     if "帮助" in event.get_plaintext():
          await what2drink.finish(__what2eat_usages__)
