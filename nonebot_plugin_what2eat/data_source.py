@@ -403,10 +403,10 @@ class EatingManager:
             current_dir = os.getcwd()
             print("当前工作目录:", current_dir)
             for gid in self._greetings["groups_id"]:
-                if int(gid) == 244960293:
+                if int(gid) == 244960293 and meal is Meals.BREAKFAST:
                     with open("assets/wangqun.jpg", "rb") as f:
                         msg = MessageSegment.image(f.read())
-                elif int(gid) == 853041949:
+                elif int(gid) == 853041949 and meal is Meals.BREAKFAST:
                     with open("assets/miaoqun.jpg", "rb") as f:
                         msg = MessageSegment.image(f.read())
                 try:
