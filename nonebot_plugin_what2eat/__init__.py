@@ -339,25 +339,25 @@ async def time_for_breakfast():
     await eating_manager.do_greeting(Meals.BREAKFAST)
 
 
-# 午餐提醒
-@scheduler.scheduled_job("cron", hour=12, minute=0, misfire_grace_time=60)
-async def time_for_lunch():
-    await eating_manager.do_greeting(Meals.LUNCH)
+# # 午餐提醒
+# @scheduler.scheduled_job("cron", hour=12, minute=0, misfire_grace_time=60)
+# async def time_for_lunch():
+#     await eating_manager.do_greeting(Meals.LUNCH)
 
 
-# 下午茶/摸鱼提醒
-@scheduler.scheduled_job("cron", hour=15, minute=0, misfire_grace_time=60)
-async def time_for_snack():
-    await eating_manager.do_greeting(Meals.SNACK)
+# # 下午茶/摸鱼提醒
+# @scheduler.scheduled_job("cron", hour=15, minute=0, misfire_grace_time=60)
+# async def time_for_snack():
+#     await eating_manager.do_greeting(Meals.SNACK)
 
 
-# 晚餐提醒
-@scheduler.scheduled_job("cron", hour=18, minute=0, misfire_grace_time=60)
-async def time_for_dinner():
-    await eating_manager.do_greeting(Meals.DINNER)
+# # 晚餐提醒
+# @scheduler.scheduled_job("cron", hour=18, minute=0, misfire_grace_time=60)
+# async def time_for_dinner():
+#     await eating_manager.do_greeting(Meals.DINNER)
 
 
-# 夜宵提醒
-@scheduler.scheduled_job("cron", hour=22, minute=0, misfire_grace_time=60)
-async def time_for_midnight():
-    await eating_manager.do_greeting(Meals.MIDNIGHT)
+# # 夜宵提醒
+# @scheduler.scheduled_job("cron", hour=22, minute=0, misfire_grace_time=60)
+# async def time_for_midnight():
+#     await eating_manager.do_greeting(Meals.MIDNIGHT)
