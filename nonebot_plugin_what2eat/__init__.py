@@ -355,7 +355,7 @@ def get_dates_between(start_str, end_str):
     num_days = (end - start).days + 1
     return [(start + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(num_days)]
 
-with open("./china-holiday-calender/holidayAPI.json", "r") as f:
+with open("./repo_plugins/nonebot_plugin_what2eat/nonebot_plugin_what2eat/china-holiday-calender/holidayAPI.json", "r", encoding="utf-8") as f:
     holiday_info = json.loads(f.read())
     this_year = datetime.now().year
     holidays = holiday_info["Years"][str(this_year)]
