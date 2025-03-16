@@ -14,7 +14,8 @@ from nonebot_plugin_apscheduler import scheduler
 from .data_source import eating_manager
 from .utils import Meals, save_cq_image
 
-from datetime import datetime
+from datetime import datetime, timedelta
+import json
 
 require("nonebot_plugin_apscheduler")
 
@@ -339,25 +340,65 @@ async def time_for_breakfast():
     await eating_manager.do_greeting(Meals.BREAKFAST)
 
 
-# # 午餐提醒
-# @scheduler.scheduled_job("cron", hour=12, minute=0, misfire_grace_time=60)
-# async def time_for_lunch():
-#     await eating_manager.do_greeting(Meals.LUNCH)
+
+# 获取今年中国法定节假日以及调休日期
+def get_dates_between(start_str, end_str):
+    # 将字符串转换为日期对象
+    start = datetime.strptime(start_str, "%Y-%m-%d").date()
+    end = datetime.strptime(end_str, "%Y-%m-%d").date()
+    
+    # 确保开始日期早于或等于结束日期
+    if start > end:
+        start, end = end, start
+    
+    # 计算总天数并生成日期列表
+    num_days = (end - start).days + 1
+    return [(start + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(num_days)]
+
+with open("./china-holiday-calender/holidayAPI.json", "r") as f:
+    holiday_info = json.loads(f.read())
+    this_year = datetime.now().year
+    holidays = holiday_info["Years"][str(this_year)]
+    comp_days = [] # 调休
+    rest_days = [] # 休息
+    for holiday in holidays:
+        comp_days += holiday["CompDays"]
+        rest_days += get_dates_between(holiday["StartDate"], holiday["EndDate"])
+
+logger.info(f"{this_year} has comp_days: {", ".join(comp_days)}")
+logger.info(f"{this_year} has rest_days: {", ".join(rest_days)}")
+def isTodayWorkingDay():
+    today = datetime.now()
+    today_str = today.strftime("%Y-%m-%d")
+    if today.weekday() >= 5: # 周末
+        return today_str in comp_days
+    else: # 工作日
+        return today_str not in rest_days
 
 
-# # 下午茶/摸鱼提醒
-# @scheduler.scheduled_job("cron", hour=15, minute=0, misfire_grace_time=60)
-# async def time_for_snack():
-#     await eating_manager.do_greeting(Meals.SNACK)
+# 午餐提醒
+@scheduler.scheduled_job("cron", hour=12, minute=0, misfire_grace_time=60)
+async def time_for_lunch():
+    if isTodayWorkingDay():
+        await eating_manager.do_greeting(Meals.LUNCH)
 
 
-# # 晚餐提醒
-# @scheduler.scheduled_job("cron", hour=18, minute=0, misfire_grace_time=60)
-# async def time_for_dinner():
-#     await eating_manager.do_greeting(Meals.DINNER)
+# 下午茶/摸鱼提醒
+@scheduler.scheduled_job("cron", hour=15, minute=0, misfire_grace_time=60)
+async def time_for_snack():
+    if isTodayWorkingDay():
+        await eating_manager.do_greeting(Meals.SNACK)
 
 
-# # 夜宵提醒
-# @scheduler.scheduled_job("cron", hour=22, minute=0, misfire_grace_time=60)
-# async def time_for_midnight():
-#     await eating_manager.do_greeting(Meals.MIDNIGHT)
+# 晚餐提醒
+@scheduler.scheduled_job("cron", hour=18, minute=0, misfire_grace_time=60)
+async def time_for_dinner():
+    if isTodayWorkingDay():
+        await eating_manager.do_greeting(Meals.DINNER)
+
+
+# 夜宵提醒
+@scheduler.scheduled_job("cron", hour=22, minute=0, misfire_grace_time=60)
+async def time_for_midnight():
+    if isTodayWorkingDay():
+        await eating_manager.do_greeting(Meals.MIDNIGHT)
