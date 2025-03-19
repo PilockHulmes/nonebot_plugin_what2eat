@@ -274,7 +274,6 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
             if len(args) == 2:
                 matcher.set_arg("greeting", args[1])
 
-
 @remove_greeting.handle()
 async def _(matcher: Matcher, args: Message = CommandArg()):
     args = args.extract_plain_text().strip().split()
@@ -282,7 +281,6 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
         res = eating_manager.which_meals(args[0])
         if isinstance(res, Meals):
             matcher.set_arg("meal", args[0])
-
 
 @add_greeting.got(
     "meal",
@@ -304,7 +302,6 @@ async def handle_add_greeting(state: T_State, greeting: Message = Arg()):
     msg = eating_manager.add_greeting(meal, greeting.extract_plain_text())
     await add_greeting.finish(msg)
 
-
 @remove_greeting.got(
     "meal",
     prompt="请输入删除问候语的时段，可选：早餐/午餐/摸鱼/晚餐/夜宵，输入取消以取消操作",
@@ -313,7 +310,6 @@ async def handle_add_greeting(state: T_State, greeting: Message = Arg()):
 async def handle_show_greetings(meal: Meals = Arg()):
     msg = eating_manager.show_greetings(meal)
     await remove_greeting.send(msg)
-
 
 @remove_greeting.got(
     "index",
@@ -325,7 +321,6 @@ async def handle_remove_greeting(state: T_State, index: int = Arg()):
     msg = eating_manager.remove_greeting(meal, index)
     await remove_greeting.finish(msg)
 
-
 # ------------------------- Schedulers -------------------------
 # 重置吃什么次数，包括夜宵
 @scheduler.scheduled_job("cron", hour="6,11,17,22", minute=0, misfire_grace_time=60)
@@ -333,13 +328,10 @@ async def _():
     eating_manager.reset_count()
     logger.info("今天吃什么次数已刷新")
 
-
 # 早餐提醒
 @scheduler.scheduled_job("cron", hour=7, minute=0, misfire_grace_time=60)
 async def time_for_breakfast():
     await eating_manager.do_greeting(Meals.BREAKFAST)
-
-
 
 # 获取今年中国法定节假日以及调休日期
 def get_dates_between(start_str, end_str):
@@ -375,13 +367,11 @@ def isTodayWorkingDay():
     else: # 工作日
         return today_str not in rest_days
 
-
 # 午餐提醒
 @scheduler.scheduled_job("cron", hour=12, minute=0, misfire_grace_time=60)
 async def time_for_lunch():
     if isTodayWorkingDay():
         await eating_manager.do_greeting(Meals.LUNCH)
-
 
 # 下午茶/摸鱼提醒
 @scheduler.scheduled_job("cron", hour=15, minute=0, misfire_grace_time=60)
@@ -389,13 +379,11 @@ async def time_for_snack():
     if isTodayWorkingDay():
         await eating_manager.do_greeting(Meals.SNACK)
 
-
 # 晚餐提醒
 @scheduler.scheduled_job("cron", hour=18, minute=0, misfire_grace_time=60)
 async def time_for_dinner():
     if isTodayWorkingDay():
         await eating_manager.do_greeting(Meals.DINNER)
-
 
 # 夜宵提醒
 @scheduler.scheduled_job("cron", hour=22, minute=0, misfire_grace_time=60)
